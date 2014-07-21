@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.fghijk.maven.poms</groupId>
+        <artifactId>fghijk-rpm-root-pom</artifactId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>net.fghijk.rpms</groupId>
+    <artifactId>gitlab</artifactId>
+    <version>7.0.0-1</version>
+    <packaging>rpm</packaging>
+
+    <name>GitLab</name>
+    <description>Gitlab: Self hosted Git management software</description>
+
+    <properties>
+        <rpmVersion>7.0.0</rpmVersion>
+        <rpmRelease>1</rpmRelease>
+        <gitlabShellVersion>1.9.6</gitlabShellVersion>
+        <rpmArch>x86_64</rpmArch>
+    </properties>
+
+    <build>
+        <outputDirectory>${project.build.directory}/rpmbuild</outputDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/rpmbuild</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-plugin</artifactId>
+                 <executions>
+                    <execution>
+                        <id>checkout-gitlab-ce</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>checkout</goal>
+                        </goals>
+                        <configuration>
+                            <connectionUrl>scm:git:git@gitlab.pacman.fghijk.local:thirdparty/gitlab-ce.git</connectionUrl>
+                            <scmVersion>v${rpmVersion}</scmVersion>
+                            <scmVersionType>tag</scmVersionType>
+                            <checkoutDirectory>${project.build.outputDirectory}/SOURCES/gitlab-ce</checkoutDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>checkout-gitlab-shell</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>checkout</goal>
+                        </goals>
+                        <configuration>
+                            <connectionUrl>scm:git:git@gitlab.pacman.fghijk.local:thirdparty/gitlab-shell.git</connectionUrl>
+                            <scmVersion>v${gitlabShellVersion}</scmVersion>
+                            <scmVersionType>tag</scmVersionType>
+                            <checkoutDirectory>${project.build.outputDirectory}/SOURCES/gitlab-shell</checkoutDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.fghijk.maven.plugins</groupId>
+                <artifactId>fghijk-bash-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>rpmbuild</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <script>
+                                rpmbuild -ba --define '_topdir ${project.build.outputDirectory}' \
+                                --define '_name ${project.artifactId}' \
+                                --define '_version ${rpmVersion}' \
+                                --define '_release ${rpmRelease}' \
+                                --define '_arch ${rpmArch}' \
+                                ${project.build.outputDirectory}/SPECS/${project.artifactId}.spec
+                            </script>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.fghijk.maven.plugins</groupId>
+                <artifactId>fghijk-rpm-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <outputRpm>${project.build.outputDirectory}/RPMS/${rpmArch}/${project.build.finalName}.${rpmArch}.rpm</outputRpm>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>rpms</id>
+            <name>FGHIJK RPM Releases</name>
+            <url>${fghijk.repos.rpms}</url>
+        </repository>
+    </distributionManagement>
+</project>
