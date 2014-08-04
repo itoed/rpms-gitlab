@@ -21,6 +21,7 @@
         <rpmRelease>1</rpmRelease>
         <gitlabShellVersion>1.9.6</gitlabShellVersion>
         <rpmArch>x86_64</rpmArch>
+        <scm.host>gitlab.fghijk.net</scm.host>
     </properties>
 
     <build>
@@ -42,7 +43,7 @@
                             <goal>checkout</goal>
                         </goals>
                         <configuration>
-                            <connectionUrl>scm:git:git@gitlab.pacman.fghijk.local:thirdparty/gitlab-ce.git</connectionUrl>
+                            <connectionUrl>scm:git:git@${scm.host}:thirdparty/gitlab-ce.git</connectionUrl>
                             <scmVersion>v${rpmVersion}</scmVersion>
                             <scmVersionType>tag</scmVersionType>
                             <checkoutDirectory>${project.build.outputDirectory}/SOURCES/gitlab-ce</checkoutDirectory>
@@ -55,7 +56,7 @@
                             <goal>checkout</goal>
                         </goals>
                         <configuration>
-                            <connectionUrl>scm:git:git@gitlab.pacman.fghijk.local:thirdparty/gitlab-shell.git</connectionUrl>
+                            <connectionUrl>scm:git:git@${scm.host}:thirdparty/gitlab-shell.git</connectionUrl>
                             <scmVersion>v${gitlabShellVersion}</scmVersion>
                             <scmVersionType>tag</scmVersionType>
                             <checkoutDirectory>${project.build.outputDirectory}/SOURCES/gitlab-shell</checkoutDirectory>
